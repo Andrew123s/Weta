@@ -41,7 +41,7 @@ Single host is the starting point. Scale-out path: database on its own host; mor
 git clone <repo> weta && cd weta
 uv sync                                   # creates .venv, installs workspace
 pnpm install
-createdb weta_dev && psql weta_dev -c "CREATE EXTENSION postgis; CREATE EXTENSION pgcrypto; CREATE EXTENSION citext;"
+createdb weta_dev && psql weta_dev -c "CREATE EXTENSION postgis; CREATE EXTENSION pgcrypto; CREATE EXTENSION citext; CREATE EXTENSION pg_trgm; CREATE EXTENSION btree_gist;"
 cp .env.example .env                      # edit DATABASE_URL, SECRET_KEY, FILE_STORE
 uv run alembic upgrade head
 uv run python scripts/seed_system.py      # roles, permissions, units, layer types, property definitions
@@ -52,6 +52,19 @@ pnpm --filter web dev                     # Vite dev server proxies /api to :800
 ```
 
 `scripts/dev.ps1` and `scripts/dev.sh` start API, worker and web together. On Windows, PowerShell equivalents of the database commands are in `scripts/setup_windows.ps1`.
+
+What exists today (see `docs/implementation-status.md`): through Phase 1 there is no schema, so the `createdb`, `alembic`, seed, demo-load and worker lines are not used yet; they arrive in Phases 2 and 3. Without `WETA_DATABASE_URL` the API still runs and `/api/v1/health/ready` reports the database as `not_configured`. The Phase 1 dev scripts start the API and the web app only.
+
+Checks run locally exactly as in CI:
+
+```
+uv run ruff format --check . && uv run ruff check .
+uv run mypy packages/core/src packages/schemas/src apps/api/weta_api
+uv run lint-imports
+uv run pytest --cov
+pnpm --filter web lint && pnpm --filter web typecheck && pnpm --filter web test
+pnpm --filter web gen:api                 # after any API change: regenerates openapi.json and TS types
+```
 
 ## 4. Configuration
 

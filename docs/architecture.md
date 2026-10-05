@@ -109,8 +109,10 @@ Dependency rules, enforced by `import-linter` in CI:
 
 1. `core` depends on nothing internal.
 2. Engines depend on `core` and `schemas` only. Engines do not import each other, `db`, or `apps`. An engine that needs another engine's output receives it as an input from the graph.
-3. Only `scenarios` composes engines. Only `apps/api` and `scenarios` talk to `db` (through repositories).
-4. `reporting` reads stored results; it never recomputes.
+3. Only `scenarios` composes engines. Only `apps/api` (routers, services and job handlers) talks to `db`, through repositories. The graph executor in `scenarios` reaches stored runs through a `RunStore` protocol that `scenarios` defines and `apps/api` implements over the repositories, so every engine, including `scenarios`, stays free of database imports.
+4. `reporting` reads stored results, handed to it by `apps/api` through a read protocol in the same way; it never recomputes.
+
+(Rule 3 was clarified during Phase 1: the earlier wording let `scenarios` import `db`, which contradicted rule 2 and `CLAUDE.md`. The protocol keeps the dependency direction one-way and lets `import-linter` enforce it.)
 
 ### Engine contract
 
@@ -143,7 +145,12 @@ class Quantity(BaseModel, frozen=True):
     quality: DataQuality | None      # pedigree-style indicators where available
 ```
 
-Arithmetic on `Quantity` uses `pint` for dimensional checking. Mixing units that are not dimensionally compatible is an error at the engine boundary, not a silent conversion. Combining quantities yields the "weakest" provenance class (see section 10).
+Arithmetic on `Quantity` uses `pint` for dimensional checking. Mixing units that are not dimensionally compatible is an error at the engine boundary, not a silent conversion. Combining quantities follows the combination rule in section 10: the output class comes from the node's layer, and the inputs' classes and taints are carried forward as taint flags. Arithmetic on quantities that carry a non-point distribution is refused; uncertainty is propagated only by `engines/uncertainty`, so no distribution is silently collapsed to a point.
+
+Implemented in `packages/core` (`weta_core.quantity`, `weta_core.units`, `weta_core.provenance`). Two details fixed in Phase 1:
+
+- `Quantity` also carries `taint` (a set of the four taint flags in section 10), so the flags travel with the value between nodes rather than being recomputed from lineage.
+- `quality` is scheme-neutral (`scheme`, `scheme_version`, `scores`) until decision D-09 selects a data-quality scheme; no pedigree indicators are hard-coded.
 
 ## 5. Backend architecture
 

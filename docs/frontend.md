@@ -24,7 +24,7 @@ apps/web/src/
 ```
 
 - Server state: TanStack Query (caching, invalidation by scenario and node). UI state: Zustand (selected scenario, map view, panel layout). No global store holding server data.
-- Routing: React Router with project-scoped routes `/p/:projectId/...` and a persistent scenario selector in the shell.
+- Routing: React Router with project-scoped routes `/p/:projectId/...` and a persistent scenario selector in the shell. (Until projects exist in Phase 2 the navigation areas are top-level routes such as `/facilities`; they move under `/p/:projectId/` when project selection lands. Areas not yet built show which phase delivers them and no sample values.)
 - Forms: React Hook Form + Zod schemas derived from the OpenAPI types.
 - Permissions: a `can(permission)` helper from `/me`; controls are hidden or disabled with a reason. The server remains the authority.
 - Internationalization scaffolded from the start (English first; German next); numbers and dates through `Intl`.

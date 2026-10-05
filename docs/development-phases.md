@@ -6,7 +6,7 @@ Each phase ends with a demonstrable, tested increment. A phase starts only when 
 flowchart LR
   P0[0 Spec] --> P1[1 Foundation] --> P2[2 DB + auth] --> P3[3 Domain data]
   P3 --> P4[4 Waste engines] --> P5[5 GIS + logistics]
-  P4 --> P6[6 LCA]
+  P4 & P5 --> P6[6 LCA]
   P5 --> P7[7 Environmental risk]
   P4 --> P8a[8a Graph executor core]
   P6 & P7 & P8a --> P8[8 Scenario engine]

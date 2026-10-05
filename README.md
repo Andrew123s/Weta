@@ -6,7 +6,22 @@ Weta answers one question:
 
 > Before an industrial production or waste-management change occurs, what environmental consequences could result, where could they occur, which environmental receptors are vulnerable, what uncertainty exists, and which alternative scenario provides the best environmental outcome?
 
-This repository currently holds the Phase 0 deliverable: the architecture and scientific specification. The documents in `docs/` are the source of truth for implementation. No application code exists yet.
+The documents in `docs/` are the source of truth for implementation. Phase 1 (project foundation) is built: the core `Quantity`, units, provenance, node and hashing package, the API skeleton and the web shell. No environmental engine exists yet. Current state, test results and missing dependencies are in [docs/implementation-status.md](docs/implementation-status.md).
+
+## Quick start (native, no containers)
+
+Requires `uv` and Node.js with `pnpm` (see [docs/deployment.md](docs/deployment.md)). PostgreSQL + PostGIS is needed from Phase 2.
+
+```
+uv sync
+pnpm install
+cp .env.example .env            # optional in Phase 1; leave WETA_DATABASE_URL empty without a database
+uv run pytest                   # Python tests
+pnpm test                       # web tests
+scripts/dev.sh                  # or: powershell -File scripts\dev.ps1  -> API :8000, web :5173
+```
+
+API documentation: http://localhost:8000/api/v1/docs (development only).
 
 ## Reading order
 
@@ -33,6 +48,7 @@ This repository currently holds the Phase 0 deliverable: the architecture and sc
 | 19 | [docs/development-rules.md](docs/development-rules.md) | Binding rules for anyone (human or agent) writing code |
 | 20 | [docs/development-phases.md](docs/development-phases.md) | Phases 0 to 12 with acceptance criteria |
 | 21 | [docs/diagrams.md](docs/diagrams.md) | Index of every diagram |
+| 22 | [docs/implementation-status.md](docs/implementation-status.md) | What is built, test results, open gates and missing dependencies |
 
 ## Stack
 

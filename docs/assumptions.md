@@ -11,6 +11,7 @@ Every assumption used by an engine is registered here and in the `assumptions` t
 | A-GEN-03 | Baseline period is representative of normal operation | Scenario deltas inherit baseline bias |
 | A-GEN-04 | Input distributions are independent unless a correlation is declared | Uncertainty may be under- or over-stated |
 | A-GEN-05 | Regulatory evaluation is decision support, not legal advice | n/a |
+| A-UNIT-01 | In unit conversions, a year (`yr`, `a`) is the Julian year of 365.25 days (the `pint` definition, `packages/core/src/weta_core/units.py`). A source that reports annual totals over calendar years of 365 or 366 days is converted with this definition | Per-second or per-day rates derived from annual totals differ by up to about 0.27 % from a calendar-year basis; negligible against typical inventory uncertainty, but visible in exact reproductions |
 
 ## 2. Engine-level
 

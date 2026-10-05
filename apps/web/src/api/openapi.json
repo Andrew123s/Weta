@@ -1,0 +1,666 @@
+{
+  "components": {
+    "schemas": {
+      "CheckStatus": {
+        "description": "Status of one readiness check.",
+        "enum": [
+          "ok",
+          "not_configured",
+          "unavailable",
+          "degraded"
+        ],
+        "title": "CheckStatus",
+        "type": "string"
+      },
+      "ComponentCheck": {
+        "additionalProperties": false,
+        "description": "Result of one readiness check. ``detail`` never contains credentials.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CheckStatus"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ],
+        "title": "ComponentCheck",
+        "type": "object"
+      },
+      "EmpiricalDistribution": {
+        "additionalProperties": false,
+        "description": "An empirical distribution given by its samples.",
+        "properties": {
+          "kind": {
+            "const": "empirical",
+            "default": "empirical",
+            "title": "Kind",
+            "type": "string"
+          },
+          "samples": {
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "title": "Samples",
+            "type": "array"
+          }
+        },
+        "required": [
+          "samples"
+        ],
+        "title": "EmpiricalDistribution",
+        "type": "object"
+      },
+      "FieldError": {
+        "additionalProperties": false,
+        "description": "One validation error, located by a JSON-pointer-like path.",
+        "properties": {
+          "loc": {
+            "description": "Path to the offending field",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Loc",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Msg",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "FieldError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Liveness: the process is up and serving requests.",
+        "properties": {
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "IntervalDistribution": {
+        "additionalProperties": false,
+        "description": "Known bounds without a stated shape. ``low == high`` is allowed (degenerate).",
+        "properties": {
+          "high": {
+            "title": "High",
+            "type": "number"
+          },
+          "kind": {
+            "const": "interval",
+            "default": "interval",
+            "title": "Kind",
+            "type": "string"
+          },
+          "low": {
+            "title": "Low",
+            "type": "number"
+          }
+        },
+        "required": [
+          "low",
+          "high"
+        ],
+        "title": "IntervalDistribution",
+        "type": "object"
+      },
+      "LognormalDistribution": {
+        "additionalProperties": false,
+        "description": "Lognormal given by its median (geometric mean) and geometric standard deviation.\n\n``ln(X)`` is normal with mean ``ln(median)`` and standard deviation ``ln(gsd)``.",
+        "properties": {
+          "gsd": {
+            "title": "Gsd",
+            "type": "number"
+          },
+          "kind": {
+            "const": "lognormal",
+            "default": "lognormal",
+            "title": "Kind",
+            "type": "string"
+          },
+          "median": {
+            "title": "Median",
+            "type": "number"
+          }
+        },
+        "required": [
+          "median",
+          "gsd"
+        ],
+        "title": "LognormalDistribution",
+        "type": "object"
+      },
+      "NormalDistribution": {
+        "additionalProperties": false,
+        "description": "Normal with mean ``mean`` and standard deviation ``sd``.",
+        "properties": {
+          "kind": {
+            "const": "normal",
+            "default": "normal",
+            "title": "Kind",
+            "type": "string"
+          },
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "sd": {
+            "title": "Sd",
+            "type": "number"
+          }
+        },
+        "required": [
+          "mean",
+          "sd"
+        ],
+        "title": "NormalDistribution",
+        "type": "object"
+      },
+      "PointDistribution": {
+        "additionalProperties": false,
+        "description": "No stated uncertainty: the quantity's value is used as given.",
+        "properties": {
+          "kind": {
+            "const": "point",
+            "default": "point",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "title": "PointDistribution",
+        "type": "object"
+      },
+      "ProblemDetail": {
+        "additionalProperties": false,
+        "description": "Error response body. Never contains stack traces or internal details.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "instance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instance"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "status": {
+            "maximum": 599.0,
+            "minimum": 400.0,
+            "title": "Status",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "default": "about:blank",
+            "description": "URI identifying the problem type",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "status"
+        ],
+        "title": "ProblemDetail",
+        "type": "object"
+      },
+      "ProvenanceClass": {
+        "description": "The eight provenance classes (PostgreSQL enum ``provenance_class``).",
+        "enum": [
+          "OBSERVED",
+          "USER_PROVIDED",
+          "IMPORTED",
+          "DERIVED",
+          "MODELLED",
+          "PREDICTED",
+          "SCENARIO_ASSUMPTION",
+          "SYNTHETIC_DEMO"
+        ],
+        "title": "ProvenanceClass",
+        "type": "string"
+      },
+      "QuantityOut": {
+        "additionalProperties": false,
+        "description": "A quantity as serialized in API responses.",
+        "properties": {
+          "provenance": {
+            "$ref": "#/components/schemas/ProvenanceClass"
+          },
+          "result_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Result Id"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ref"
+          },
+          "taint": {
+            "$ref": "#/components/schemas/Taint"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "empirical": "#/components/schemas/EmpiricalDistribution",
+                    "interval": "#/components/schemas/IntervalDistribution",
+                    "lognormal": "#/components/schemas/LognormalDistribution",
+                    "normal": "#/components/schemas/NormalDistribution",
+                    "point": "#/components/schemas/PointDistribution",
+                    "triangular": "#/components/schemas/TriangularDistribution",
+                    "uniform": "#/components/schemas/UniformDistribution"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PointDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/UniformDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TriangularDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/NormalDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LognormalDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/IntervalDistribution"
+                  },
+                  {
+                    "$ref": "#/components/schemas/EmpiricalDistribution"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Uncertainty"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "unit",
+          "provenance",
+          "taint"
+        ],
+        "title": "QuantityOut",
+        "type": "object"
+      },
+      "ReadinessResponse": {
+        "additionalProperties": false,
+        "description": "Readiness: whether the dependencies needed to serve real work are available.",
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CheckStatus"
+          }
+        },
+        "required": [
+          "status",
+          "checks"
+        ],
+        "title": "ReadinessResponse",
+        "type": "object"
+      },
+      "Taint": {
+        "additionalProperties": false,
+        "description": "Which kinds of input a value was built on (docs/architecture.md section 10).",
+        "properties": {
+          "predicted": {
+            "default": false,
+            "title": "Predicted",
+            "type": "boolean"
+          },
+          "scenario_assumption": {
+            "default": false,
+            "title": "Scenario Assumption",
+            "type": "boolean"
+          },
+          "synthetic": {
+            "default": false,
+            "title": "Synthetic",
+            "type": "boolean"
+          },
+          "user_provided": {
+            "default": false,
+            "title": "User Provided",
+            "type": "boolean"
+          }
+        },
+        "title": "Taint",
+        "type": "object"
+      },
+      "TriangularDistribution": {
+        "additionalProperties": false,
+        "description": "Triangular with lower limit ``min``, mode ``mode`` and upper limit ``max``.",
+        "properties": {
+          "kind": {
+            "const": "triangular",
+            "default": "triangular",
+            "title": "Kind",
+            "type": "string"
+          },
+          "max": {
+            "title": "Max",
+            "type": "number"
+          },
+          "min": {
+            "title": "Min",
+            "type": "number"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "mode",
+          "max"
+        ],
+        "title": "TriangularDistribution",
+        "type": "object"
+      },
+      "UniformDistribution": {
+        "additionalProperties": false,
+        "description": "Uniform between ``min`` and ``max``.",
+        "properties": {
+          "kind": {
+            "const": "uniform",
+            "default": "uniform",
+            "title": "Kind",
+            "type": "string"
+          },
+          "max": {
+            "title": "Max",
+            "type": "number"
+          },
+          "min": {
+            "title": "Min",
+            "type": "number"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ],
+        "title": "UniformDistribution",
+        "type": "object"
+      },
+      "VersionResponse": {
+        "additionalProperties": false,
+        "description": "Versions of the application and the components that affect results.",
+        "properties": {
+          "api_version": {
+            "title": "Api Version",
+            "type": "string"
+          },
+          "application": {
+            "title": "Application",
+            "type": "string"
+          },
+          "components": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Components",
+            "type": "object"
+          },
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "git_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Git Sha"
+          },
+          "python": {
+            "title": "Python",
+            "type": "string"
+          }
+        },
+        "required": [
+          "application",
+          "api_version",
+          "environment",
+          "git_sha",
+          "python",
+          "components"
+        ],
+        "title": "VersionResponse",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "summary": "Predictive EIA, LCA, GIS and ML for upstream industrial waste logistics",
+    "title": "Weta API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "description": "The process is up. Does not touch dependencies.",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "description": "Checks the dependencies needed for real work. Returns 503 unless all are ``ok``.",
+        "operationId": "ready_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            },
+            "description": "A dependency is not ready"
+          }
+        },
+        "summary": "Readiness",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "description": "Versions of the application and of the libraries that affect results.",
+        "operationId": "get_version_api_v1_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Application and component versions",
+        "tags": [
+          "system"
+        ]
+      }
+    }
+  }
+}

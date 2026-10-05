@@ -1,0 +1,19 @@
+[project]
+name = "weta-schemas"
+version = "0.1.0"
+description = "Weta shared Pydantic contracts for the API (OpenAPI source for generated TypeScript types)."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pydantic>=2.9,<3",
+    "weta-core",
+]
+
+[tool.uv.sources]
+weta-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/weta_schemas"]

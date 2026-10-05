@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "weta-api",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "uvicorn", "weta_api.main:app", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "weta-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web", "dev"],
+      "port": 5173
+    }
+  ]
+}

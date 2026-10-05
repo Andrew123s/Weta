@@ -1,0 +1,117 @@
+[project]
+name = "weta-workspace"
+version = "0.1.0"
+description = "Weta: upstream industrial waste logistics, predictive EIA, LCA, GIS and ML platform (uv workspace root)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "weta-core",
+    "weta-schemas",
+    "weta-api",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "hypothesis>=6.120",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "import-linter>=2.1",
+    "httpx2>=2.13.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/core", "packages/schemas", "apps/api"]
+
+[tool.uv.sources]
+weta-core = { workspace = true }
+weta-schemas = { workspace = true }
+weta-api = { workspace = true }
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["packages/core/tests", "packages/schemas/tests", "apps/api/tests", "tests"]
+addopts = ["--import-mode=importlib", "--strict-markers", "-ra"]
+xfail_strict = true
+filterwarnings = ["error"]
+
+# ---------------------------------------------------------------- coverage
+[tool.coverage.run]
+branch = true
+source = ["weta_core", "weta_schemas", "weta_api"]
+
+[tool.coverage.report]
+# Floors set in Phase 1 (docs/testing.md section 12); ratchet upward, never down.
+fail_under = 90
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["apps/web", "docs", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "S", "N", "SIM", "RUF", "C4", "PT", "PL", "TID", "A", "ARG", "DTZ"]
+ignore = [
+    "PLR0913",  # engine input models can legitimately have many fields
+    "PLR2004",  # magic-value comparison: tests compare against verified literals
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "PLR2004", "S105", "S106"]
+"tests/**" = ["S101"]
+"scripts/**" = ["S603", "S607"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["weta_core", "weta_schemas", "weta_api"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["packages/core/src", "packages/schemas/src", "apps/api"]
+explicit_package_bases = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["pint", "pint.*", "importlinter.*"]
+ignore_missing_imports = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------- import-linter
+# Enforces the dependency rules in docs/architecture.md section 4.
+# Add each engine package to the contracts as it is created.
+[tool.importlinter]
+root_packages = ["weta_core", "weta_schemas", "weta_api"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "core depends on nothing internal"
+type = "forbidden"
+source_modules = ["weta_core"]
+forbidden_modules = ["weta_schemas", "weta_api", "fastapi", "sqlalchemy", "httpx2"]
+
+[[tool.importlinter.contracts]]
+name = "schemas never import the API app or database code"
+type = "forbidden"
+source_modules = ["weta_schemas"]
+forbidden_modules = ["weta_api", "fastapi", "sqlalchemy"]
+
+[[tool.importlinter.contracts]]
+name = "layers: api above schemas above core"
+type = "layers"
+layers = ["weta_api", "weta_schemas", "weta_core"]

@@ -1,0 +1,72 @@
+# CI without containers (docs/testing.md section 12): every job runs directly on the
+# hosted virtual machine, on Linux and Windows from Phase 1 onward.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: python (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install workspace
+        run: uv sync --locked
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check .
+      - name: Type-check (strict)
+        run: uv run mypy packages/core/src packages/schemas/src apps/api/weta_api
+      - name: Import contracts
+        run: uv run lint-imports
+      - name: Tests and reference cases
+        run: uv run pytest --cov --cov-report=term
+      - name: OpenAPI document is up to date
+        run: uv run python scripts/export_openapi.py --check
+
+  web:
+    name: web (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Lint and format
+        run: pnpm --filter web lint
+      - name: Type-check
+        run: pnpm --filter web typecheck
+      - name: Generated API types match the OpenAPI document
+        shell: bash
+        working-directory: apps/web
+        run: |
+          pnpm exec openapi-typescript src/api/openapi.json -o src/api/schema.d.ts
+          pnpm exec prettier --write src/api/schema.d.ts
+          git diff --exit-code -- src/api/schema.d.ts
+      - name: Tests
+        run: pnpm --filter web test
+      - name: Build
+        run: pnpm --filter web build

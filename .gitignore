@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+build/
+dist/
+.import_linter_cache/
+
+# Node
+node_modules/
+apps/web/dist/
+apps/web/coverage/
+*.tsbuildinfo
+
+# Environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Runtime data
+/var/
+/filestore/
+models/trained/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
