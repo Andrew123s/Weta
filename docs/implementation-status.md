@@ -9,7 +9,7 @@ Last updated: 2026-10-05, end of Phase 1.
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
 | 0 | Architecture and scientific specification | Done, with one open gate | Docs exist and are internally consistent after the fixes in section 3. Open: the per-engine specialist review in the Phase 0 acceptance criteria is a human task and has not happened. It must be completed before engine results (Phase 4 onward) are used for any decision |
-| 1 | Project foundation | Done locally; Linux CI not yet observed | See section 4 |
+| 1 | Project foundation | Done | All acceptance criteria met; CI green on Ubuntu and Windows. See section 4 |
 | 2 | Database and authentication | Not started | Blocked on a native PostgreSQL 16 + PostGIS 3.4 install (section 5) |
 | 3 to 12 | | Not started | |
 
@@ -74,8 +74,8 @@ Reference values in the tests are independent of the code under test: unit defin
 
 | Criterion | Status |
 |-----------|--------|
-| `uv run pytest` and `pnpm test` green on Windows and Linux | Windows: met. Linux: runs in CI; not yet observed, because the GitHub CLI is not authenticated on this machine |
-| CI green | Pending first CI run on GitHub |
+| `uv run pytest` and `pnpm test` green on Windows and Linux | Met: locally on Windows 11 and in CI on `ubuntu-latest` and `windows-latest` |
+| CI green | Met: run for commit `b426d92`, all four jobs passed. The first run failed because `@types/node` was missing; it had passed locally only because a stray `node_modules` outside the repository supplied the types |
 | Import contracts enforced | Met (`lint-imports` in CI) |
 | No container files in the repository | Met, and enforced by `tests/test_repository_hygiene.py` |
 
@@ -94,7 +94,7 @@ Reference values in the tests are independent of the code under test: unit defin
 | uv 0.9, Python 3.12 (installed by uv) | Present | Phase 1 |
 | Node.js 24, pnpm 10 | Present | Phase 1 |
 | PostgreSQL 16 + PostGIS 3.4 (+ `pgcrypto`, `citext`, `pg_trgm`, `btree_gist`) | Not installed | Phase 2 |
-| GitHub CLI authentication (to observe CI) | Not authenticated | Now |
+| GitHub CLI authentication | Not authenticated; CI status is read from the public API instead | Optional |
 | GeoPandas, Rasterio, Shapely, PyProj (binary wheels) | Not yet added | Phase 5 |
 | pgRouting or an external router (decision D-05) | Not installed | Phase 5 |
 | LightGBM, SHAP, SALib | Not yet added | Phases 8 and 9 |
